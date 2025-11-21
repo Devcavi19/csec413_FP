@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation Results - Drop Ball Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .results-container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+        .parameter-card { border-left: 4px solid {{ fair_color }}; background: #f8f9fa; }
+        .game-result-card { border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .fair-game-card { border-top: 4px solid {{ fair_color }}; background: #f0f8ff; }
+        .tweaked-game-card { border-top: 4px solid {{ tweaked_color }}; background: #fff0f5; }
+        .impact-analysis-card { border-left: 4px solid #ffc107; background: #fff3cd; }
+        .insights-card { border-left: 4px solid #28a745; background: #d1ecf1; }
+        .chart-container { position: relative; height: 350px; margin-bottom: 20px; }
+        .metric-value { font-size: 1.5rem; font-weight: bold; }
+        .metric-label { font-size: 0.9rem; color: #6c757d; }
+        .comparison-difference { font-size: 1.2rem; font-weight: bold; }
+        .positive-difference { color: #28a745; }
+        .negative-difference { color: #dc3545; }
+        .loading-spinner { text-align: center; padding: 40px; }
+        .spinner-border { width: 3rem; height: 3rem; }
+        @media (max-width: 768px) {
+            .game-result-card { margin-bottom: 15px; }
+            .metric-value { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="custom-navbar">
+        <div class="custom-nav-container">
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <div class="custom-nav-brand">
+                    <i class="fas fa-dice"></i>
+                    <span>Drop Ball Simulator</span>
+                </div>
+            </a>
+            <div class="custom-nav-links">
+                <a href="/">Home</a>
+                <a href="/results">Results</a>
+                <a href="/about">About</a>
+                <a href="/simulate" class="btn-nav">Run Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="ball-animation">
+        <div class="ball"></div>
+    </div>
+
+    <div class="results-container">
+        <h1 class="text-center mb-4">📊 Simulation Results Analysis</h1>
+        <p class="text-center text-muted mb-4">Detailed breakdown of simulation outcomes with comparative analysis</p>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-spinner" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading simulation results...</p>
+        </div>
+
+        <!-- No Data State -->
+        <div id="noDataState" class="text-center p-5">
+            <h3 class="text-muted">📈 No Simulation Data Found</h3>
+            <p class="text-muted">Run a simulation from the <a href="/simulate">Simulate page</a> to view detailed results here.</p>
+            <a href="/simulate" class="btn btn-primary btn-lg">🎲 Go to Simulation</a>
+        </div>
+
+        <!-- Results Content -->
+        <div id="resultsContent" style="display: none;">
+            <!-- 1. Simulation Parameters -->
+            <div class="card parameter-card shadow mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">⚙️ Simulation Parameters</h4>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="metric-value" id="paramRounds">-</div>
+                            <div class="metric-label">Rounds</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-value" id="paramCard">-</div>
+                            <div class="metric-label">Bet Card</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-value" id="paramBetAmount">$-</div>
+                            <div class="metric-label">Bet Amount</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-value" id="paramSeed">-</div>
+                            <div class="metric-label">Seed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Game Result Cards -->
+            <div class="row mb-4">
+                <!-- Fair Game Results -->
+                <div class="col-lg-6">
+                    <div class="game-result-card fair-game-card shadow">
+                        <h4 style="color: {{ fair_color }};">🎯 Fair Game Results</h4>
+                        <hr>
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <div class="metric-value" id="fairWinRate">-</div>
+                                <div class="metric-label">Win Rate %</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="metric-value" id="fairTotalProfit">$-</div>
+                                <div class="metric-label">Total Profit</div>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Avg Profit/Round:</strong></div>
+                            <div class="col-6 text-end" id="fairAvgProfit">-</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>ROI:</strong></div>
+                            <div class="col-6 text-end" id="fairROI">-%</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Actual House Edge:</strong></div>
+                            <div class="col-6 text-end" id="fairActualHouseEdge">-%</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Theoretical House Edge:</strong></div>
+                            <div class="col-6 text-end" id="fairTheoreticalHouseEdge">-%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tweaked Game Results -->
+                <div class="col-lg-6">
+                    <div class="game-result-card tweaked-game-card shadow">
+                        <h4 style="color: {{ tweaked_color }};">🃏 Tweaked Game Results</h4>
+                        <hr>
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <div class="metric-value" id="tweakedWinRate">-</div>
+                                <div class="metric-label">Win Rate %</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="metric-value" id="tweakedTotalProfit">$-</div>
+                                <div class="metric-label">Total Profit</div>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Avg Profit/Round:</strong></div>
+                            <div class="col-6 text-end" id="tweakedAvgProfit">-</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>ROI:</strong></div>
+                            <div class="col-6 text-end" id="tweakedROI">-%</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Actual House Edge:</strong></div>
+                            <div class="col-6 text-end" id="tweakedActualHouseEdge">-%</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Theoretical House Edge:</strong></div>
+                            <div class="col-6 text-end" id="tweakedTheoreticalHouseEdge">-%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Impact Analysis -->
+            <div class="card impact-analysis-card shadow mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">📈 Impact Analysis</h4>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="comparison-difference" id="winRateDiff">-</div>
+                            <div class="metric-label">Win Rate Difference (Fair - Tweaked)</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="comparison-difference" id="roiDiff">-</div>
+                            <div class="metric-label">ROI Difference (Tweaked - Fair)</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="comparison-difference" id="houseEdgeIncrease">-</div>
+                            <div class="metric-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Increase in casino advantage due to Joker card (Tweaked House Edge - Fair House Edge)">House Edge Increase (Tweaked - Fair)</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="comparison-difference" id="houseProfitIncrease">-</div>
+                            <div class="metric-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Increase in casino profit due to Joker card (Tweaked Total Profit - Fair Total Profit)">House Profit Increase (Tweaked - Fair)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Key Insights -->
+            <div class="card insights-card shadow mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">💡 Key Insights</h4>
+                    <div id="insightsContent">
+                        <p class="text-muted">Loading insights...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Visualizations -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5>📊 Cumulative Profit Comparison</h5>
+                            <div class="chart-container">
+                                <canvas id="profitChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5>💰 ROI Over Time</h5>
+                            <div class="chart-container">
+                                <canvas id="roiChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5>🏠 House Edge Comparison</h5>
+                            <div class="chart-container">
+                                <canvas id="houseEdgeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5>🎯 Hits Distribution Comparison</h5>
+                            <div class="chart-container">
+                                <canvas id="hitsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5>1️⃣ Single Ball Distribution</h5>
+                            <div class="chart-container">
+                                <canvas id="singleBallChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5>2️⃣ Double Ball Distribution</h5>
+                            <div class="chart-container">
+                                <canvas id="doubleBallChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5>3️⃣ Triple Ball Distribution</h5>
+                            <div class="chart-container">
+                                <canvas id="tripleBallChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5>🃏 Card Frequency Comparison</h5>
+                    <div class="chart-container">
+                        <canvas id="cardFreqChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mb-4">
+                <a href="/simulate" class="btn btn-primary btn-lg me-3">🎲 Run New Simulation</a>
+                <button class="btn btn-secondary btn-lg" onclick="window.print()">🖨️ Print Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/results.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drop Ball Game Simulator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="custom-navbar">
+        <div class="custom-nav-container">
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <div class="custom-nav-brand">
+                    <i class="fas fa-dice"></i>
+                    <span>Drop Ball Simulator</span>
+                </div>
+            </a>
+            <div class="custom-nav-links">
+                <a href="/">Home</a>
+                <a href="/results">Results</a>
+                <a href="/about">About</a>
+                <a href="/simulate" class="btn-nav">Run Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with CTA -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <i class="fas fa-gamepad"></i>
+                Filipino Drop Ball Game Simulator
+            </h1>
+            <p class="hero-subtitle">
+                Experience the thrill of the traditional Pinoy perya game with advanced Monte Carlo simulations and statistical analysis
+            </p>
+            <a href="#simulation" class="cta-button pulse">
+                <i class="fas fa-play"></i>
+                Start Simulation
+                <span class="cta-arrow">→</span>
+            </a>
+        </div>
+        <div class="hero-visual">
+            <div class="card-grid">
+                <div class="card-item">9</div>
+                <div class="card-item">10</div>
+                <div class="card-item">J</div>
+                <div class="card-item">Q</div>
+                <div class="card-item">K</div>
+                <div class="card-item">A</div>
+            </div>
+            <div class="ball-animation">
+                <div class="ball"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-info-circle"></i>
+                Application Overview
+            </h2>
+            <p class="section-description">
+                Comprehensive analysis platform for the traditional Filipino Drop Ball gambling game featuring probabilistic modeling, Monte Carlo simulations, and advanced statistical visualizations.
+            </p>
+
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3>Fair Game</h3>
+                    <p>Equal probability (1/6) across all cards with mathematically balanced payout structure designed for zero expected value.</p>
+                    <div class="card-stats">
+                        <span class="stat">6 Cards</span>
+                        <span class="stat">16.67% Probability</span>
+                        <span class="stat">EV ≈ 0</span>
+                    </div>
+                </div>
+
+                <div class="overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3>Tweaked Game</h3>
+                    <p>Includes Joker card creating house edge with reduced probabilities (1/7) and strategic payout adjustments.</p>
+                    <div class="card-stats">
+                        <span class="stat">7 Cards</span>
+                        <span class="stat">14.29% Probability</span>
+                        <span class="stat">House Edge</span>
+                    </div>
+                </div>
+
+                <div class="overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Monte Carlo</h3>
+                    <p>Advanced simulation engine running thousands of trials to analyze probability distributions and expected outcomes.</p>
+                    <div class="card-stats">
+                        <span class="stat">10K+ Trials</span>
+                        <span class="stat">Real-time</span>
+                        <span class="stat">Statistical</span>
+                    </div>
+                </div>
+
+                <div class="overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Analysis</h3>
+                    <p>Comprehensive statistical dashboard with profit/loss tracking, ROI analysis, and probability distribution charts.</p>
+                    <div class="card-stats">
+                        <span class="stat">7 Charts</span>
+                        <span class="stat">Interactive</span>
+                        <span class="stat">Exportable</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payout Structure Section -->
+    <section id="payout" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-coins"></i>
+                Payout Structure
+            </h2>
+            <p class="section-description">
+                Understanding the payout multipliers and net profits for each outcome in the Drop Ball game.
+            </p>
+
+            <div class="payout-container">
+                <div class="payout-table">
+                    <div class="table-header">
+                        <div class="table-cell">Hits</div>
+                        <div class="table-cell">Multiplier</div>
+                        <div class="table-cell">$1 Bet</div>
+                        <div class="table-cell">Net Profit</div>
+                        <div class="table-cell">Probability</div>
+                    </div>
+
+                    {% for hits, multiplier in payout_structure.items() %}
+                    <div class="table-row {% if hits == 0 %}loss-row{% elif hits == 3 %}jackpot-row{% endif %}">
+                        <div class="table-cell hits-cell">
+                            {% if hits == 0 %}
+                                <i class="fas fa-times-circle"></i> {{ hits }}
+                            {% elif hits == 1 %}
+                                <i class="fas fa-circle"></i> {{ hits }}
+                            {% elif hits == 2 %}
+                                <i class="fas fa-circle"></i><i class="fas fa-circle"></i> {{ hits }}
+                            {% elif hits == 3 %}
+                                <i class="fas fa-trophy"></i> {{ hits }}
+                            {% endif %}
+                        </div>
+                        <div class="table-cell">{{ multiplier }}x</div>
+                        <div class="table-cell">${{ multiplier }}</div>
+                        <div class="table-cell {% if multiplier - 1 > 0 %}profit{% elif multiplier - 1 < 0 %}loss{% else %}break-even{% endif %}">
+                            {% if multiplier - 1 > 0 %}+{% endif %}${{ "%.2f"|format(multiplier - 1) }}
+                        </div>
+                        <div class="table-cell">
+                            {% set prob = (1/6.0)**hits * (5/6.0)**(3-hits) * 100 %}
+                            {{ "%.2f"|format(prob) }}%
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="payout-info">
+                    <div class="info-box">
+                        <h4><i class="fas fa-calculator"></i> How It Works</h4>
+                        <p><strong>Net Profit</strong> = Bet Amount × (Multiplier - 1)</p>
+                        <p><strong>Example:</strong> $10 bet, 2 hits → $10 × (4 - 1) = $30 profit</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h4><i class="fas fa-dice"></i> Game Mechanics</h4>
+                        <ul>
+                            <li>3 balls drop sequentially per round</li>
+                            <li>Player chooses one card to bet on</li>
+                            <li>Payout based on balls landing on chosen card</li>
+                            <li>Same payout structure for both game types</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Theoretical Comparison Section -->
+    <section id="comparison" class="section">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-balance-scale"></i>
+                Theoretical Comparison
+            </h2>
+            <p class="section-description">
+                Mathematical analysis comparing the Fair Game (balanced) versus Tweaked Game (house edge) models.
+            </p>
+
+            <div class="comparison-grid">
+                <div class="comparison-card fair-card">
+                    <div class="card-header">
+                        <h3>
+                            <i class="fas fa-balance-scale"></i>
+                            Fair Game
+                        </h3>
+                        <span class="badge badge-fair">EV ≈ 0</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="metric">
+                            <span class="metric-label">Cards:</span>
+                            <span class="metric-value">{{ theoretical_data.fair.cards }}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Probability per Card:</span>
+                            <span class="metric-value">{{ theoretical_data.fair.probability }}%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">House Edge:</span>
+                            <span class="metric-value">{{ theoretical_data.fair.house_edge }}%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Expected Value:</span>
+                            <span class="metric-value">{{ theoretical_data.fair.ev }}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <p>Mathematically balanced game with zero expected value over infinite trials.</p>
+                    </div>
+                </div>
+
+                <div class="comparison-card tweaked-card">
+                    <div class="card-header">
+                        <h3>
+                            <i class="fas fa-magic"></i>
+                            Tweaked Game
+                        </h3>
+                        <span class="badge badge-tweaked">House Edge</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="metric">
+                            <span class="metric-label">Cards:</span>
+                            <span class="metric-value">{{ theoretical_data.tweaked.cards }}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Probability per Card:</span>
+                            <span class="metric-value">{{ theoretical_data.tweaked.probability }}%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">House Edge:</span>
+                            <span class="metric-value">{{ theoretical_data.tweaked.house_edge }}%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Expected Value:</span>
+                            <span class="metric-value">{{ theoretical_data.tweaked.ev }}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <p>Includes Joker card reducing probabilities and creating consistent house advantage.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-summary">
+                <div class="summary-box">
+                    <h4><i class="fas fa-chart-pie"></i> Key Differences</h4>
+                    <div class="difference-grid">
+                        <div class="difference-item">
+                            <strong>Cards:</strong> Fair (6) vs Tweaked (7 including Joker)
+                        </div>
+                        <div class="difference-item">
+                            <strong>Probability:</strong> 16.67% vs 14.29% per card
+                        </div>
+                        <div class="difference-item">
+                            <strong>House Edge:</strong> {{ theoretical_data.fair.house_edge }}% vs {{ theoretical_data.tweaked.house_edge }}%
+                        </div>
+                        <div class="difference-item">
+                            <strong>Long-term Result:</strong> Break-even vs Guaranteed loss
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simulation CTA Section -->
+    <section id="simulation" class="section section-cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">
+                    <i class="fas fa-rocket"></i>
+                    Ready to Explore?
+                </h2>
+                <p class="cta-description">
+                    Run interactive simulations, analyze probability distributions, and discover the mathematics behind this fascinating gambling game.
+                </p>
+                <div class="cta-buttons">
+                    <a href="/simulate" class="btn-primary">
+                        <i class="fas fa-play-circle"></i>
+                        Start Full Simulation
+                    </a>
+                    <button class="btn-secondary" onclick="scrollToTop()">
+                        <i class="fas fa-arrow-up"></i>
+                        Back to Top
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <i class="fas fa-dice"></i>
+                    <span>Drop Ball Simulator</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#overview">Overview</a>
+                    <a href="#payout">Payout</a>
+                    <a href="#comparison">Comparison</a>
+                    <a href="/about">About</a>
+                    <a href="#simulation">Simulation</a>
+                </div>
+                <div class="footer-meta">
+                    <span>Modeling & Simulation Final Project</span>
+                    <span>© 2025</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

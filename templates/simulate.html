@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparative Simulation - Drop Ball Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .simulation-container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+        .parameter-card { border-left: 4px solid {{ fair_color }}; }
+        .info-section { background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .chart-container { position: relative; height: 350px; margin-bottom: 20px; }
+        .game-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .game-card { border-radius: 8px; padding: 20px; }
+        .fair-game-card { border-top: 4px solid {{ fair_color }}; background: #f0f8ff; }
+        .tweaked-game-card { border-top: 4px solid {{ tweaked_color }}; background: #fff0f5; }
+        .loading-spinner { display: none; text-align: center; padding: 40px; }
+        .spinner-border { width: 3rem; height: 3rem; }
+        .tip-badge { background: #ffc107; color: #000; padding: 5px 10px; border-radius: 5px; font-size: 0.9em; }
+        .comparison-badge { padding: 8px 15px; border-radius: 5px; font-weight: bold; }
+        .comparison-better { background: #28a745; color: white; }
+        .comparison-worse { background: #dc3545; color: white; }
+        @media (max-width: 992px) {
+            .game-comparison { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="custom-navbar">
+        <div class="custom-nav-container">
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <div class="custom-nav-brand">
+                    <i class="fas fa-dice"></i>
+                    <span>Drop Ball Simulator</span>
+                </div>
+            </a>
+            <div class="custom-nav-links">
+                <a href="/">Home</a>
+                <a href="/results">Results</a>
+                <a href="/about">About</a>
+                <a href="/simulate" class="btn-nav">Run Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="ball-animation">
+        <div class="ball"></div>
+    </div>
+
+    <div class="simulation-container">
+        <h1 class="text-center mb-4">🎯 Comparative Drop Ball Simulation</h1>
+        <p class="text-center text-muted mb-4">Run both Fair and Tweaked games simultaneously for side-by-side comparison</p>
+
+        <!-- What Simulation Does -->
+        <div class="info-section">
+            <h3>📊 What This Simulation Does</h3>
+            <p>Run thousands of Drop Ball game rounds <strong>for both game types at once</strong> and compare results with comprehensive analysis:</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><strong>For Each Game Type:</strong></h6>
+                    <ul>
+                        <li><strong>Win/Loss Statistics:</strong> Track wins vs losses for both games</li>
+                        <li><strong>Profit Tracking:</strong> Cumulative profit over time</li>
+                        <li><strong>Hit Distribution:</strong> Frequency of 0, 1, 2, 3 hits</li>
+                        <li><strong>Card Frequency:</strong> Which cards balls land on most</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><strong>Comparative Analysis:</strong></h6>
+                    <ul>
+                        <li><strong>Side-by-Side Metrics:</strong> Compare profit, win rate, house edge</li>
+                        <li><strong>Visual Comparison:</strong> Overlay charts showing both games</li>
+                        <li><strong>Theoretical vs Actual:</strong> How results match predictions</li>
+                        <li><strong>House Edge Impact:</strong> See the Joker card effect in action</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips for Best Results -->
+        <div class="info-section" style="border-left: 4px solid #28a745;">
+            <h3>💡 Tips for Best Results</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><span class="tip-badge">RECOMMENDED</span> Simulation Settings</h5>
+                    <ul>
+                        <li><strong>10,000+ simulations</strong> for reliable comparative statistics</li>
+                        <li><strong>Enable random seed</strong> for reproducible comparisons</li>
+                        <li><strong>Try different cards</strong> to verify outcomes are consistent</li>
+                        <li><strong>Compare multiple runs</strong> with different seeds</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>⚠️ Important Notes</h5>
+                    <ul>
+                        <li>Both games use the <strong>same random seed</strong> for fair comparison</li>
+                        <li>Higher simulation counts = longer processing (2x time for both games)</li>
+                        <li>100,000+ simulations may take 20-60 seconds</li>
+                        <li>Each simulation = 3 balls × 2 games = 6 balls total per round</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Understanding Parameters -->
+        <div class="info-section" style="border-left: 4px solid #17a2b8;">
+            <h3>📖 Understanding Parameters</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <h6><strong>Number of Simulations</strong></h6>
+                    <p>How many game rounds to play <em>for each game type</em>. Each round drops 3 balls.</p>
+                    <small class="text-muted">Example: 10,000 simulations = 10,000 rounds × 2 games = 20,000 total rounds</small>
+                </div>
+                <div class="col-md-4">
+                    <h6><strong>Card to Bet On</strong></h6>
+                    <p>Choose which card (9, 10, J, Q, K, A) you're betting on <em>for both games</em>. Balls landing on this card count as "hits".</p>
+                    <small class="text-muted">Both Fair and Tweaked games use the same chosen card</small>
+                </div>
+                <div class="col-md-4">
+                    <h6><strong>Bet Amount</strong></h6>
+                    <p>Amount wagered per round (in dollars). Applied to <em>both games</em>. Payouts scale with bet size.</p>
+                    <small class="text-muted">Total risk per round = bet × 2 games</small>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="row">
+                <div class="col-md-12">
+                    <h6><strong>Random Seed (Reproducibility)</strong></h6>
+                    <p>Fixed starting point for random number generation. <strong>Both games use the same seed</strong> to ensure fair comparison. 
+                    Same seed = same results every time you run. Uncheck for truly random outcomes each time.</p>
+                    <small class="text-muted"><strong>Why this matters:</strong> Using the same seed ensures both games face identical "luck" conditions, 
+                    making comparisons valid. Different seeds would introduce noise from random variation.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Panel: Parameters -->
+            <div class="col-lg-3">
+                <div class="card parameter-card shadow sticky-top" style="top: 20px;">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">⚙️ Simulation Parameters</h4>
+
+                        <!-- Number of Simulations -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Number of Simulations</label>
+                            <select class="form-select" id="numSimulations">
+                                {% for option in simulation_options %}
+                                <option value="{{ option }}" {% if option == default_params.num_simulations %}selected{% endif %}>
+                                    {{ "{:,}".format(option) }} rounds
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Per game type (×2 total)</small>
+                        </div>
+
+                        <!-- Card Selection -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Card to Bet On</label>
+                            <select class="form-select" id="chosenCard">
+                                {% for card in available_cards %}
+                                <option value="{{ card }}" {% if card == default_params.chosen_card %}selected{% endif %}>
+                                    {{ card }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Same card for both games</small>
+                        </div>
+
+                        <!-- Bet Amount -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Bet Amount ($)</label>
+                            <input type="number" class="form-control" id="betAmount"
+                                   value="{{ default_params.bet_amount }}"
+                                   min="0.01" step="0.01">
+                            <small class="text-muted">Per round, per game</small>
+                        </div>
+
+                        <!-- Random Seed -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="useRandomSeed"
+                                       {% if default_params.random_seed %}checked{% endif %}>
+                                <label class="form-check-label fw-bold" for="useRandomSeed">
+                                    Use Random Seed
+                                </label>
+                            </div>
+                            <input type="number" class="form-control mt-2" id="seedValue"
+                                   value="{{ default_params.seed_value }}"
+                                   placeholder="Seed value (e.g., 42)">
+                            <small class="text-muted">Ensures fair comparison</small>
+                        </div>
+
+                        <!-- Run Button -->
+                        <button class="btn btn-primary btn-lg w-100 mt-3" id="runSimulationBtn">
+                            🎲 Run Comparative Simulation
+                        </button>
+
+                        <!-- Loading Spinner -->
+                        <div class="loading-spinner" id="loadingSpinner">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Running...</span>
+                            </div>
+                            <p class="mt-2">Running both games...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results -->
+            <div class="col-lg-9">
+                <div id="resultsContainer" style="display: none;">
+                    <!-- Comparison Summary -->
+                    <div class="card shadow mb-4" style="border-top: 4px solid #6c757d;">
+                        <div class="card-body">
+                            <h4 class="card-title mb-3">⚖️ Comparative Summary</h4>
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <h5 id="profitComparison" class="mb-1">-</h5>
+                                    <small class="text-muted">Profit Difference</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <h5 id="winRateComparison" class="mb-1">-</h5>
+                                    <small class="text-muted">Win Rate Difference</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <h5 id="houseEdgeComparison" class="mb-1">-</h5>
+                                    <small class="text-muted">House Edge Difference</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <h5 id="betterGame" class="mb-1">-</h5>
+                                    <small class="text-muted">Better Game</small>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <button id="viewDetailedResultsBtn" class="btn btn-success btn-lg">
+                                    📊 View Detailed Results & Analysis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Side-by-Side Game Results -->
+                    <div class="game-comparison mb-4">
+                        <!-- Fair Game -->
+                        <div class="game-card fair-game-card shadow">
+                            <h4 style="color: {{ fair_color }};">🎯 Fair Game (6 Cards)</h4>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h3 id="fairProfit" class="mb-0">-</h3>
+                                    <small>Total Profit</small>
+                                </div>
+                                <div class="col-6">
+                                    <h3 id="fairWinRate" class="mb-0">-</h3>
+                                    <small>Win Rate</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-6"><strong>Avg Return:</strong></div>
+                                <div class="col-6 text-end" id="fairAvgReturn">-</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6"><strong>House Edge:</strong></div>
+                                <div class="col-6 text-end" id="fairHouseEdge">-</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6"><strong>Wins/Losses:</strong></div>
+                                <div class="col-6 text-end" id="fairWinLoss">-</div>
+                            </div>
+                        </div>
+
+                        <!-- Tweaked Game -->
+                        <div class="game-card tweaked-game-card shadow">
+                            <h4 style="color: {{ tweaked_color }};">🃏 Tweaked Game (7 Cards + Joker)</h4>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h3 id="tweakedProfit" class="mb-0">-</h3>
+                                    <small>Total Profit</small>
+                                </div>
+                                <div class="col-6">
+                                    <h3 id="tweakedWinRate" class="mb-0">-</h3>
+                                    <small>Win Rate</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-6"><strong>Avg Return:</strong></div>
+                                <div class="col-6 text-end" id="tweakedAvgReturn">-</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6"><strong>House Edge:</strong></div>
+                                <div class="col-6 text-end" id="tweakedHouseEdge">-</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6"><strong>Wins/Losses:</strong></div>
+                                <div class="col-6 text-end" id="tweakedWinLoss">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Initial Message -->
+                <div id="initialMessage" class="text-center p-5">
+                    <h3 class="text-muted">👈 Configure parameters and click "Run Comparative Simulation"</h3>
+                    <p class="text-muted">Both Fair and Tweaked game results will appear side-by-side</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/simulate.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Drop Ball Simulation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .section-header {
+            background: linear-gradient(135deg, {{ fair_color }}, {{ tweaked_color }});
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .methodology-card {
+            border-left: 4px solid {{ fair_color }};
+            transition: transform 0.3s ease;
+        }
+
+        .methodology-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tech-badge {
+            background: linear-gradient(135deg, {{ fair_color }}20, {{ tweaked_color }}20);
+            border: 2px solid {{ fair_color }};
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin: 0.5rem;
+            display: inline-block;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, {{ fair_color }}10, {{ tweaked_color }}10);
+            border: 2px solid {{ fair_color }};
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .start-sim-btn {
+            background: linear-gradient(135deg, {{ fair_color }}, {{ tweaked_color }});
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .start-sim-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <nav class="custom-navbar">
+        <div class="custom-nav-container">
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <div class="custom-nav-brand">
+                    <i class="fas fa-dice"></i>
+                    <span>Drop Ball Simulator</span>
+                </div>
+            </a>
+            <div class="custom-nav-links">
+                <a href="/">Home</a>
+                <a href="/results">Results</a>
+                <a href="/about">About</a>
+                <a href="/simulate" class="btn-nav">Run Simulation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="ball-animation">
+        <div class="ball"></div>
+    </div>
+
+    <div class="container my-5">
+        <!-- Academic Context Section -->
+        <section class="mb-5">
+            <div class="section-header">
+                <h1 class="display-4">📚 About This Project</h1>
+                <p class="lead mb-0">A Comprehensive Simulation Study of the Filipino Drop Ball Game</p>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h3 mb-3">🎓 Academic Context</h2>
+                    <p class="lead">
+                        This web-based simulation was developed as a <strong>Final Project for Modeling and Simulation</strong> course,
+                        demonstrating the practical application of Monte Carlo methods, probability theory, and statistical analysis
+                        in understanding real-world gambling mechanics.
+                    </p>
+                    <div class="alert alert-info">
+                        <strong>Course:</strong> Modeling and Simulation<br>
+                        <strong>Project Type:</strong> Finals Project<br>
+                        <strong>Focus:</strong> Probabilistic Modeling, Statistical Simulation, and Web-Based Visualization
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game History Section -->
+        <section class="mb-5">
+            <h2 class="h3 mb-4">🎪 Perya Drop Ball Game History</h2>
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h3 class="h5">📜 Origins and Cultural Significance</h3>
+                            <p>
+                                The <strong>Drop Ball Game</strong> (also known as "Color Game" variations) is a traditional Filipino
+                                carnival game commonly found in <em>perya</em> (local fairs). Players bet on which card (9, 10, J, Q, K, A)
+                                a ball will land on after being dropped through a maze of obstacles.
+                            </p>
+                            <p>
+                                The game's simplicity and fast-paced nature make it popular among fair-goers, but like most gambling games,
+                                it involves probability mechanics that favor the house.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100" style="border-left: 4px solid {{ fair_color }};">
+                        <div class="card-body">
+                            <h3 class="h5" style="color: {{ fair_color }};">⚖️ Fair Game Model</h3>
+                            <p>
+                                In a <strong>theoretically fair version</strong>, each card has an equal probability (1/6 ≈ 16.67%)
+                                of being hit. With carefully calibrated payouts, the Expected Value (EV) approaches zero, meaning
+                                neither player nor house has a long-term advantage.
+                            </p>
+                            <ul class="mb-0">
+                                <li>6 cards (9, 10, J, Q, K, A)</li>
+                                <li>Equal probability per card</li>
+                                <li>EV ≈ 0 (balanced payouts)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100" style="border-left: 4px solid {{ tweaked_color }};">
+                        <div class="card-body">
+                            <h3 class="h5" style="color: {{ tweaked_color }};">🎭 Tweaked Game Model (House Edge)</h3>
+                            <p>
+                                The <strong>tweaked version</strong> introduces a <span class="badge bg-danger">Joker card</span>,
+                                reducing the probability of hitting chosen cards to 1/7 (≈ 14.29%) while maintaining the same payout
+                                structure. This creates a house edge, ensuring the operator profits over time.
+                            </p>
+                            <ul class="mb-0">
+                                <li>7 cards (9, 10, J, Q, K, A, <strong>Joker</strong>)</li>
+                                <li>Reduced probability per card</li>
+                                <li>Negative EV (house advantage)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Methodology Section -->
+        <section class="mb-5">
+            <h2 class="h3 mb-4">🔬 Methodology</h2>
+            <p class="lead mb-4">
+                Our research and development process combined theoretical probability with computational simulation
+                to validate game mechanics and visualize long-term outcomes.
+            </p>
+
+            {% for step in methodology_steps %}
+            <div class="card methodology-card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3" style="font-size: 2.5rem;">{{ step.icon }}</div>
+                        <div>
+                            <h3 class="h5 mb-2">{{ step.title }}</h3>
+                            <p class="mb-0 text-muted">{{ step.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="alert alert-secondary mt-4">
+                <strong>📊 Analysis Techniques Used:</strong>
+                <ul class="mb-0 mt-2">
+                    <li><strong>Binomial Probability Distribution:</strong> Calculate theoretical hit probabilities</li>
+                    <li><strong>Expected Value (EV) Calculation:</strong> Determine fairness and house edge</li>
+                    <li><strong>Cumulative Profit Tracking:</strong> Visualize long-term trends</li>
+                    <li><strong>Hit Distribution Analysis:</strong> Compare theoretical vs empirical outcomes</li>
+                    <li><strong>Card Frequency Analysis:</strong> Identify patterns in ball landings</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Technology Stack Section -->
+        <section class="mb-5">
+            <h2 class="h3 mb-4">💻 Technology Stack</h2>
+
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header" style="background-color: {{ fair_color }}; color: white;">
+                            <h3 class="h5 mb-0">🐍 Backend</h3>
+                        </div>
+                        <div class="card-body">
+                            {% for tech in tech_stack.backend %}
+                            <div class="tech-badge">
+                                <strong>{{ tech.name }}</strong><br>
+                                <small class="text-muted">{{ tech.purpose }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header" style="background-color: {{ tweaked_color }}; color: white;">
+                            <h3 class="h5 mb-0">🎨 Frontend</h3>
+                        </div>
+                        <div class="card-body">
+                            {% for tech in tech_stack.frontend %}
+                            <div class="tech-badge">
+                                <strong>{{ tech.name }}</strong><br>
+                                <small class="text-muted">{{ tech.purpose }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header" style="background: linear-gradient(135deg, {{ fair_color }}, {{ tweaked_color }}); color: white;">
+                            <h3 class="h5 mb-0">📈 Visualization</h3>
+                        </div>
+                        <div class="card-body">
+                            {% for tech in tech_stack.visualization %}
+                            <div class="tech-badge">
+                                <strong>{{ tech.name }}</strong><br>
+                                <small class="text-muted">{{ tech.purpose }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- What You'll Discover Section -->
+        <section class="cta-section">
+            <h2 class="display-5 mb-4">🎯 What You'll Discover</h2>
+            <p class="lead mb-4">
+                This simulation allows you to explore the mathematical foundations of chance-based games through
+                interactive visualizations and statistical analysis. You'll discover:
+            </p>
+
+            <div class="row text-start mb-4">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">✅ <strong>Probability in Action:</strong> See how theoretical predictions match real outcomes</li>
+                        <li class="mb-2">✅ <strong>House Edge Impact:</strong> Understand how small changes affect long-term profits</li>
+                        <li class="mb-2">✅ <strong>Monte Carlo Methods:</strong> Learn how simulations reveal hidden patterns</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">✅ <strong>Fair vs Unfair Games:</strong> Compare balanced and biased game mechanics</li>
+                        <li class="mb-2">✅ <strong>Statistical Convergence:</strong> Watch results stabilize over thousands of trials</li>
+                        <li class="mb-2">✅ <strong>Data-Driven Insights:</strong> Make informed decisions using visualizations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="/" class="btn start-sim-btn">
+                    🚀 Start Simulation Now
+                </a>
+            </div>
+
+            <p class="text-muted mt-4 mb-0">
+                <small>Experience the power of computational modeling and see probability theory come to life!</small>
+            </p>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <i class="fas fa-dice"></i>
+                    <span>Drop Ball Simulator</span>
+                </div>
+                <div class="footer-links">
+                    <a href="/">Home</a>
+                    <a href="/about">About</a>
+                </div>
+                <div class="footer-meta">
+                    <span>Modeling & Simulation Final Project</span>
+                    <span>© 2025</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
