@@ -290,7 +290,7 @@ body {
 /* Overview Cards */
 .overview-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 30px;
     margin-top: 50px;
 }
@@ -354,10 +354,9 @@ body {
 
 /* Payout Structure */
 .payout-container {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 40px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
 }
 
 .payout-table {
@@ -427,38 +426,46 @@ body {
 }
 
 .payout-info {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    margin-top: 10px;
 }
 
 .info-box {
     background: white;
-    padding: 25px;
+    padding: 30px;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow);
 }
 
-.info-box h4 {
+.info-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+}
+
+.info-section h4 {
     color: var(--fair-color);
     margin-bottom: 15px;
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 1.2rem;
 }
 
-.info-box p {
+.info-section p {
     margin-bottom: 10px;
     color: var(--text-secondary);
+    line-height: 1.6;
 }
 
-.info-box ul {
+.info-section ul {
     padding-left: 20px;
+    margin-top: 10px;
 }
 
-.info-box li {
+.info-section li {
     margin-bottom: 8px;
     color: var(--text-secondary);
+    line-height: 1.6;
 }
 
 /* Theoretical Comparison */
