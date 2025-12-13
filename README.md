@@ -4,7 +4,7 @@
  <img height=200px src="./static/css/images/header.png" alt="Drop Ball Game Simulator">
 </p>
 
-<h2 align="center">Filipino Drop Ball Game Simulator - Modeling and Simulation Final Project</h2>
+<h2 align="center">Drop Ball Game Simulator - Modeling and Simulation Final Project</h2>
 
 <div align="center">
 
