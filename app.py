@@ -15,8 +15,14 @@ from flask import Flask, render_template, request, jsonify
 import drop_ball
 import json
 from datetime import datetime
+import os
 
 app = Flask(__name__)
+
+# Production Configuration
+# Generate a secret key with: python -c 'import secrets; print(secrets.token_hex(32))'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-please-change-in-production')
+app.config['JSON_SORT_KEYS'] = False
 
 # Game constants
 FAIR_COLOR = '#2E86AB'      # Blue for Fair Game
@@ -405,4 +411,5 @@ def about():
                          tweaked_color=TWEAKED_COLOR)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Local development only - not used in production WSGI deployment
+    app.run(debug=False, host='127.0.0.1', port=5000)
