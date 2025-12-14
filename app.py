@@ -404,5 +404,7 @@ def about():
                          fair_color=FAIR_COLOR,
                          tweaked_color=TWEAKED_COLOR)
 
+# For local development, you can run: python app.py
+# For Vercel deployment, the app is exported and imported by api/index.py
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
